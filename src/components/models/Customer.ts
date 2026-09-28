@@ -3,13 +3,13 @@ import { IBuyer, TPayment } from "../../types";
 type IBuyerErrors = Partial<Record<keyof IBuyer, string>>;
 
 export class Customer {
-  private payment: TPayment;
+  private payment: TPayment | null;
   private address: string;
   private phone: string;
   private email: string;
 
   constructor() {
-    this.payment = 'card';
+    this.payment = null;
     this.address = '';
     this.phone = '';
     this.email = '';
@@ -35,28 +35,28 @@ export class Customer {
 
   /** Очистка данных покупателя */
   clear(): void {
-    this.payment = 'card';
+    this.payment = null;
     this.address = '';
     this.phone = '';
     this.email = '';
   }
 
-  validate(a: IBuyer):IBuyerErrors{
+  validate():IBuyerErrors{
     const errors: IBuyerErrors = {};
 
-    if (!a.payment) {
+    if (this.payment === null) {
       errors.payment = 'Не выбран вид оплаты';
     }
 
-    if (!a.address?.trim()) {
+    if (!this.address?.trim()) {
       errors.address = 'Укажите адрес доставки';
     }
 
-    if (!a.phone?.trim()) {
+    if (!this.phone?.trim()) {
       errors.phone = 'Укажите телефон';
     }
 
-    if (!a.email?.trim()) {
+    if (!this.email?.trim()) {
       errors.email = 'Укажите email';
     }
 

@@ -5,7 +5,7 @@ import { Basket } from './components/models/Basket';
 import { Customer } from './components/models/Customer';
 import { Api } from './components/base/Api';
 import { API_URL } from './utils/constants';
-import { WebApi } from './components/models/WebApi';
+import { WebApi } from './components/base/WebApi';
 
 const catalog = new ProductCatalog();
 catalog.saveProducts(apiProducts.items);
@@ -55,17 +55,22 @@ customer.saveData({ payment: 'card', address: 'ул. Ленина, 1', email: ''
 console.log('Сохраняем только phone — address не должен сброситься',customer.getData());
 
 customer.saveData({ payment: 'card', address: 'ул. Ленина, 1', phone: '+79991234567', email: 'test@test.ru' });
-console.log('Проверка validate — ошибок быть не должно',customer.validate(customer.getData()));
+console.log('Проверка validate — ошибок быть не должно',customer.validate());
 
-const emptyBuyer = { payment: '', address: '', phone: '', email: '' };
-console.log('Проверка validate — должны быть все ошибки',customer.validate(emptyBuyer));
+customer.saveData ({ payment: null, address: '', phone: '', email: '' });
+console.log('Проверка validate — должны быть все ошибки',customer.validate());
 
 customer.clear();
 console.log('Проверка clear',customer.getData());
 
 const api = new Api(API_URL);
 const webApi = new WebApi(api);
-const webitem = await webApi.getProductList();
-const catalogaip = new ProductCatalog();
-catalogaip.saveProducts(webitem.items);
-console.log('Массив товаров',catalogaip);
+webApi.getProductList()
+    .then((response) => { 
+        catalog.saveProducts(response.items); 
+        console.log("Каталог товаров с сервера: ", catalog.getProducts()); 
+    }) 
+    .catch((error) => { 
+        console.error("Ошибка при получении товаров с сервера: ", error); 
+    });
+
