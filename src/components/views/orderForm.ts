@@ -43,7 +43,7 @@ export class OrderForm extends Component<IOrderForm> {
 
     this.container.addEventListener('submit', (event) => {
       event.preventDefault();
-      this.events.emit('contacts');
+      this.events.emit('contactsForm');
     });
   }
 

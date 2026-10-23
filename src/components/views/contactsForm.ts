@@ -32,7 +32,7 @@ export class ContactForm extends Component<IContactForm> {
 
     this.container.addEventListener('submit', (e) => {
       e.preventDefault();
-      this.events.emit('success');
+      this.events.emit('success:order');
     });
   }
 

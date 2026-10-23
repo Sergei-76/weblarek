@@ -4,7 +4,7 @@ import { Api } from './components/base/Api';
 import { API_URL } from './utils/constants';
 import { ensureElement, cloneTemplate } from './utils/utils';
 import { EventEmitter } from './components/base/Events';
-import { IProduct, TPayment} from './types';
+import { IProduct, TPayment, IOrder} from './types';
 import { WebApi } from './components/WebApi';
 
 import { ProductCatalog } from './components/models/ProductCatalog';
@@ -126,7 +126,7 @@ events.on('form:order', (data: { field: 'payment' | 'address'; value: string }) 
   }
 })
 
-events.on('contacts', () => {
+events.on('contactsForm', () => {
   events.emit('contacts:changed')
   modal.render({ content: contactForms.render() });
 })
@@ -152,15 +152,49 @@ events.on('form:contacts', (data: { field: 'phone' | 'email'; value: string }) =
   }
 })
 
+let isSubmitting = false;
+
+events.on('success:order', async () => {
+  
+  if (isSubmitting) return;
+  isSubmitting = true;
+
+  const customerData = customers.getData();
+  const basketItems = baskets.getItems();
+
+  try {
+    const orderPayload: IOrder = {
+      payment: customerData.payment,
+      email: customerData.email,
+      phone: customerData.phone,
+      address: customerData.address,
+      items: basketItems.map((item) => String(item.id)),
+      total: baskets.getTotalPrice(),
+    };
+
+    const result = await webApi.orderProducts(orderPayload);
+
+    if (result && typeof result.id === 'string') {
+      events.emit('success');
+    } else {
+      throw new Error('Сервер не вернул корректный ответ заказа');
+    }
+  } catch (error) {
+    console.error('Ошибка отправки заказа:', error);
+  } finally {
+    isSubmitting = false;
+  }
+})
+
 events.on('success', () => {
-  console.log('Покупатель',customers.getData(),'Заказ',baskets.getItems(),'Итого синапсов',baskets.getTotalPrice() )
   modal.render({ content: successForms.render({
     total: baskets.getTotalPrice(),
   }) });
 })
 
-events.on('success:close', () => {
 
+
+events.on('success:close', () => {
   customers.clear();
   baskets.clear();
   modal.close();
