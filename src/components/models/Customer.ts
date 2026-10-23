@@ -1,4 +1,5 @@
 import { IBuyer, TPayment } from "../../types";
+import { IEvents } from "../base/Events";
 
 type IBuyerErrors = Partial<Record<keyof IBuyer, string>>;
 
@@ -8,7 +9,7 @@ export class Customer {
   private phone: string;
   private email: string;
 
-  constructor() {
+  constructor(protected events: IEvents) {
     this.payment = null;
     this.address = '';
     this.phone = '';
@@ -17,10 +18,10 @@ export class Customer {
 
   /** Сохранение данных — можно передать любое подмножество полей */
   saveData(data: Partial<IBuyer>): void {
-    if (data.payment !== undefined) this.payment = data.payment;
-    if (data.address !== undefined) this.address = data.address;
-    if (data.phone !== undefined) this.phone = data.phone;
-    if (data.email !== undefined) this.email = data.email;
+    if (data.payment !== undefined) {this.payment = data.payment; this.events.emit('order:changed');};
+    if (data.address !== undefined) {this.address = data.address; this.events.emit('order:changed');};
+    if (data.phone !== undefined) {this.phone = data.phone; this.events.emit('contacts:changed');}
+    if (data.email !== undefined) {this.email = data.email; this.events.emit('contacts:changed');}
   }
 
   /** Получение всех данных покупателя */
@@ -41,7 +42,7 @@ export class Customer {
     this.email = '';
   }
 
-  validate():IBuyerErrors{
+  validateStep1():IBuyerErrors{
     const errors: IBuyerErrors = {};
 
     if (this.payment === null) {
@@ -51,6 +52,12 @@ export class Customer {
     if (!this.address?.trim()) {
       errors.address = 'Укажите адрес доставки';
     }
+
+    return errors;
+  }
+
+  validateStep2():IBuyerErrors{
+    const errors: IBuyerErrors = {};
 
     if (!this.phone?.trim()) {
       errors.phone = 'Укажите телефон';

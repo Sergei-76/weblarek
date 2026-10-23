@@ -1,4 +1,4 @@
-import { IApi, IProductList, IOrder, IOrderResult } from '../../types';
+import { IApi, IProductList, IOrder, IOrderResult } from '../types';
 
 export class WebApi {
   private api: IApi;
