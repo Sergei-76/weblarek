@@ -1,33 +1,24 @@
 import { ensureAllElements, ensureElement } from '../../utils/utils';
-import { Component } from '../base/Component';
+import { ServiceForm } from './serviceForm';
 import type { IEvents } from '../base/Events';
 import type { TPayment } from '../../types';
 
 interface IOrderForm {
   payment: TPayment | null;
   address: string;
-  valid: boolean;
-  errors: string; 
 }
 
-export class OrderForm extends Component<IOrderForm> {
+export class OrderForm extends ServiceForm<IOrderForm> {
 
   protected paymentButtons: HTMLButtonElement[];
   protected addressInput: HTMLInputElement;
-  protected orderButton: HTMLButtonElement;
-  protected errorsElement: HTMLElement;
 
   constructor(protected events: IEvents, protected container: HTMLFormElement) {
-    super(container);
+    super(container, '.order__button');
 
-    this.paymentButtons = ensureAllElements<HTMLButtonElement>(
-      '.button_alt',
-      this.container
-    );
+    this.paymentButtons = ensureAllElements<HTMLButtonElement>('.button_alt',this.container);
     this.addressInput = ensureElement<HTMLInputElement>('.form__input', this.container);
-    this.orderButton = ensureElement<HTMLButtonElement>('.order__button', this.container);
-    this.errorsElement = ensureElement<HTMLElement>('.form__errors', this.container);
-
+    
     this.paymentButtons.forEach((button) => {
       button.addEventListener('click', () => {
         this.events.emit('form:order', { field: 'payment', value: button.name });
@@ -55,14 +46,5 @@ export class OrderForm extends Component<IOrderForm> {
 
   protected set address(value: string) {
     this.addressInput.value = value;
-  }
-
-  protected set valid(value: boolean) {
-    this.orderButton.disabled = !value;
-  }
-
-  protected set errors(value: string) {
-    this.errorsElement.textContent = value;
-    
   }
 }

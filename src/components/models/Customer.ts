@@ -1,7 +1,5 @@
-import { IBuyer, TPayment } from "../../types";
+import { IBuyer, TPayment, IBuyerErrors } from "../../types";
 import { IEvents } from "../base/Events";
-
-type IBuyerErrors = Partial<Record<keyof IBuyer, string>>;
 
 export class Customer {
   private payment: TPayment | null;
@@ -40,9 +38,11 @@ export class Customer {
     this.address = '';
     this.phone = '';
     this.email = '';
+    this.events.emit('order:changed')
+    this.events.emit('contacts:changed');
   }
 
-  validateStep1():IBuyerErrors{
+  validate():IBuyerErrors{
     const errors: IBuyerErrors = {};
 
     if (this.payment === null) {
@@ -52,12 +52,6 @@ export class Customer {
     if (!this.address?.trim()) {
       errors.address = 'Укажите адрес доставки';
     }
-
-    return errors;
-  }
-
-  validateStep2():IBuyerErrors{
-    const errors: IBuyerErrors = {};
 
     if (!this.phone?.trim()) {
       errors.phone = 'Укажите телефон';

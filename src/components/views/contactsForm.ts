@@ -1,26 +1,20 @@
-import { ensureAllElements, ensureElement } from '../../utils/utils';
-import { Component } from '../base/Component';
+import { ensureAllElements } from '../../utils/utils';
+import { ServiceForm } from './serviceForm';
 import type { IEvents } from '../base/Events';
 
 interface IContactForm {
   email: string;
   phone: string;
-  valid: boolean;
-  errors: string; 
 }
 
-export class ContactForm extends Component<IContactForm> {
+export class ContactForm extends ServiceForm<IContactForm> {
   protected contactsInput: HTMLInputElement[];
-  protected submitButton: HTMLButtonElement;
-  protected errorsElement: HTMLElement;
 
   constructor(protected events: IEvents, protected container: HTMLElement) {
-    super(container);
+    super(container, '.button');
 
     this.contactsInput = ensureAllElements<HTMLInputElement>('.form__input', this.container);
-    this.submitButton = ensureElement<HTMLButtonElement>('.button', this.container);
-    this.errorsElement = ensureElement<HTMLElement>('.form__errors', this.container);
-
+   
     this.contactsInput.forEach((input) => {
       input.addEventListener('input', () => {
         this.events.emit('form:contacts', {
@@ -46,11 +40,4 @@ export class ContactForm extends Component<IContactForm> {
     if (input) input.value = value;
   }
 
-  protected set valid(value: boolean) {
-    this.submitButton.disabled = !value;
-  }
-
-  protected set errors(value: string) {
-    this.errorsElement.textContent = value;
-  }
 }

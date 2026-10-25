@@ -9,6 +9,7 @@ export class Modal extends Component<IModalData> {
   protected closeButtonElement: HTMLButtonElement;
   protected contentElement: HTMLElement;
   protected windowElement: HTMLElement;
+  private _isOpen: boolean = false;
 
   constructor(container: HTMLElement) {
     super(container);
@@ -28,11 +29,17 @@ export class Modal extends Component<IModalData> {
 
   open(): void {
     this.container.classList.add('modal_active');
+    this._isOpen = true;
   }
 
   close(): void {
     this.container.classList.remove('modal_active');
     this.contentElement.replaceChildren();
+    this._isOpen = false;
+  }
+
+    isOpen(): boolean {
+    return this._isOpen;
   }
 
   render(data: IModalData): HTMLElement {

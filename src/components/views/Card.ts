@@ -22,10 +22,10 @@ export abstract class Card<T = object> extends Component<ICard & T> {
   }
 
   protected set price(value: number | null) {
-    if (typeof value === 'number') {
-      this.priceElement.textContent = `${value} синапсов `
+    if (value === null) {
+      this.priceElement.textContent = 'Бесценно'      
     } else {
-      this.priceElement.textContent = 'Бесценно'
+      this.priceElement.textContent = `${value} синапсов `
     }
   }
 }

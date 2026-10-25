@@ -21,6 +21,8 @@ export interface IBuyer {
   address: string;
 }
 
+export type IBuyerErrors = Partial<Record<keyof IBuyer, string>>;
+
 export interface IProductList {
   total: number;
   items: IProduct[];

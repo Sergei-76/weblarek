@@ -28,6 +28,7 @@ export class ProductCatalog{
   // Сохранение товара для подробного отображения
   setSelectedProduct(product: IProduct): void {
     this.selectedProduct = product;
+    this.events.emit('productCard');
   }
 
   // Получение товара для подробного отображения 
