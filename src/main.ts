@@ -107,13 +107,6 @@ events.on('card:click', () => {
 });
 
 events.on('basket:changed', () => {
-  if (modal.isOpen()) {
-    events.emit('basket:open');
-  }
-  headers.counter= baskets.getCount();
-});
-
-events.on('basket:open', () => {
   const basketCards = baskets.getItems().map((item,i ) =>
     new BasketCard(cloneTemplate<HTMLElement>('#card-basket'),
     {onClick: () => {events.emit('delete', item)}},
@@ -123,12 +116,16 @@ events.on('basket:open', () => {
     price: item.price,
     })
   );
-  const container = previewBaskets.render({
+  previewBaskets.render({
     subtotal: baskets.getTotalPrice(),
     containerlist: basketCards,
   });
+  headers.counter= baskets.getCount();
+});
+
+events.on('basket:open', () => {
   previewBaskets.disabled((baskets.getCount() === 0));
-  modal.render({ content: container});
+  modal.render({ content: previewBaskets.render()});
 
 });
 
@@ -142,7 +139,6 @@ events.on('order:changed', () => {
 
   const state = customers.getData();
   const allErrors = customers.validate();
-  console.log(state);
   const errors: IBuyerErrors = {};
   if (allErrors.payment) errors.payment = allErrors.payment;
   if (allErrors.address) errors.address = allErrors.address;
@@ -190,29 +186,15 @@ events.on('form:contacts', (data: { field: 'phone' | 'email'; value: string }) =
   }
 });
 
-let isSubmitting = false;
-
 events.on('success:order', async () => {
-  if (isSubmitting) return;
-  isSubmitting = true;
-
-  const customerData = customers.getData();
-  const basketItems = baskets.getItems();
-
-  const errors = customers.validate();
-  if (Object.keys(errors).length > 0) {
-    events.emit('order:changed');
-    isSubmitting = false;
-    return;
-  };
 
   try {
     const orderPayload: IOrder = {
-      payment: customerData.payment!,
-      email: customerData.email,
-      phone: customerData.phone,
-      address: customerData.address,
-      items: basketItems.map((item) => String(item.id)),
+      payment: customers.getData().payment!,
+      email: customers.getData().email,
+      phone: customers.getData().phone,
+      address: customers.getData().address,
+      items: baskets.getItems().map((item) => String(item.id)),
       total: baskets.getTotalPrice(),
     };
 
@@ -235,13 +217,9 @@ events.on('success:order', async () => {
 
   } catch (error) {
     console.error('Ошибка отправки заказа:', error);
-    
-  } finally {
-    isSubmitting = false;
   }
+
 });
-
-
 
 events.on('success:close', () => {
   modal.close();
